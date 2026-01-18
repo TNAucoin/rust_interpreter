@@ -4,6 +4,12 @@ fn is_letter(ch: u8) -> bool {
     ch.is_ascii_alphabetic() || ch == b'_'
 }
 
+fn skip_whitespace(ch: u8, lexer: &mut Lexer) {
+    if ch.is_ascii_whitespace() {
+        lexer.read_char();
+    }
+}
+
 pub struct Lexer {
     input: String,
     position: usize,
@@ -35,33 +41,32 @@ impl Lexer {
             self.ch = 0;
         } else {
             self.ch = self.input.as_bytes()[self.read_position];
-            println!("{}", char::from(self.ch).to_string());
         }
         self.position = self.read_position;
         self.read_position += 1;
     }
 
     pub fn next_token(&mut self) -> Token {
-        println!("nt:{}", char::from(self.ch).to_string());
+        skip_whitespace(self.ch, self);
         let token = match self.ch {
-            b'=' => Token::new(TokenType::Assign, char::from(self.ch).to_string()),
-            b';' => Token::new(TokenType::Semicolon, char::from(self.ch).to_string()),
-            b'(' => Token::new(TokenType::LParen, char::from(self.ch).to_string()),
-            b')' => Token::new(TokenType::RParen, char::from(self.ch).to_string()),
-            b',' => Token::new(TokenType::Comma, char::from(self.ch).to_string()),
-            b'+' => Token::new(TokenType::Plus, char::from(self.ch).to_string()),
-            b'{' => Token::new(TokenType::LBrace, char::from(self.ch).to_string()),
-            b'}' => Token::new(TokenType::RBrace, char::from(self.ch).to_string()),
-            0 => Token::new(TokenType::Eof, "".to_string()),
+            b'=' => Token::new(TokenType::Assign, None),
+            b';' => Token::new(TokenType::Semicolon, None),
+            b'(' => Token::new(TokenType::LParen, None),
+            b')' => Token::new(TokenType::RParen, None),
+            b',' => Token::new(TokenType::Comma, None),
+            b'+' => Token::new(TokenType::Plus, None),
+            b'{' => Token::new(TokenType::LBrace, None),
+            b'}' => Token::new(TokenType::RBrace, None),
+            0 => Token::new(TokenType::Eof, Some("".to_string())),
             _ => {
                 if is_letter(self.ch) {
                     // read the ID, and return it as token
                     // we must expicitly return here to prevent skipping
                     // read_char is called right after this which advances our pointer
                     // read_identifier advances to the proper next token after execution
-                    return Token::new(TokenType::Ident, self.read_identifier());
+                    return Token::new(TokenType::Ident, Some(self.read_identifier()));
                 } else {
-                    Token::new(TokenType::Illegal, self.ch.to_string())
+                    return Token::new(TokenType::Illegal, Some(self.ch.to_string()));
                 }
             }
         };
@@ -117,7 +122,7 @@ mod tests {
         //     x + y;
         // };
         // let result = add(five, ten);"#;
-        let input = r#"x,y"#;
+        let input = r#"x , y"#;
         println!("{}", input);
         let lexer = Lexer::new(input.to_string());
 
