@@ -6,11 +6,11 @@ pub use token_type::TokenType;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Token {
     pub token_type: TokenType,
-    pub literal: Option<String>,
+    pub literal: String,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, literal: Option<String>) -> Self {
+    pub fn new(token_type: TokenType, literal: String) -> Self {
         Token {
             token_type,
             literal,
@@ -20,13 +20,12 @@ impl Token {
 
 impl std::fmt::Display for Token {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let display_literal = match self.token_type {
-            TokenType::Ident | TokenType::Int | TokenType::Illegal => {
-                self.literal.as_deref().unwrap_or("literal was none")
-            }
-            _ => self.token_type.as_str(),
-        };
-        write!(f, "Token{:?} '{}'", self.token_type, display_literal)
+        write!(
+            f,
+            "Token: {:?} '{}'",
+            self.token_type.as_str(),
+            self.literal
+        )
     }
 }
 
@@ -37,16 +36,16 @@ mod tests {
 
     #[test]
     fn test_token_creation() {
-        let token = Token::new(TokenType::Int, Some("5".to_string()));
+        let token = Token::new(TokenType::Int, "5".to_string());
         assert_eq!(token.token_type, TokenType::Int);
-        assert_eq!(token.literal.as_deref(), Some("5"));
+        assert_eq!(token.literal, "5");
     }
 
     #[test]
     fn test_token_display() {
-        let token = Token::new(TokenType::Int, Some("42".to_string()));
+        let token = Token::new(TokenType::Int, "42".to_string());
         let display = format!("{}", token);
-        assert!(display.contains("Int"));
+        assert!(display.contains("INT"));
         assert!(display.contains("42"));
     }
 }

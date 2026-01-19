@@ -49,24 +49,24 @@ impl Lexer {
     pub fn next_token(&mut self) -> Token {
         skip_whitespace(self.ch, self);
         let token = match self.ch {
-            b'=' => Token::new(TokenType::Assign, None),
-            b';' => Token::new(TokenType::Semicolon, None),
-            b'(' => Token::new(TokenType::LParen, None),
-            b')' => Token::new(TokenType::RParen, None),
-            b',' => Token::new(TokenType::Comma, None),
-            b'+' => Token::new(TokenType::Plus, None),
-            b'{' => Token::new(TokenType::LBrace, None),
-            b'}' => Token::new(TokenType::RBrace, None),
-            0 => Token::new(TokenType::Eof, Some("".to_string())),
+            b'=' => Token::new(TokenType::Assign, self.ch.to_string()),
+            b';' => Token::new(TokenType::Semicolon, self.ch.to_string()),
+            b'(' => Token::new(TokenType::LParen, self.ch.to_string()),
+            b')' => Token::new(TokenType::RParen, self.ch.to_string()),
+            b',' => Token::new(TokenType::Comma, self.ch.to_string()),
+            b'+' => Token::new(TokenType::Plus, self.ch.to_string()),
+            b'{' => Token::new(TokenType::LBrace, self.ch.to_string()),
+            b'}' => Token::new(TokenType::RBrace, self.ch.to_string()),
+            0 => Token::new(TokenType::Eof, "".to_string()),
             _ => {
                 if is_letter(self.ch) {
                     // read the ID, and return it as token
                     // we must expicitly return here to prevent skipping
                     // read_char is called right after this which advances our pointer
                     // read_identifier advances to the proper next token after execution
-                    return Token::new(TokenType::Ident, Some(self.read_identifier()));
+                    return Token::new(TokenType::Ident, self.read_identifier());
                 } else {
-                    return Token::new(TokenType::Illegal, Some(self.ch.to_string()));
+                    return Token::new(TokenType::Illegal, self.ch.to_string());
                 }
             }
         };
